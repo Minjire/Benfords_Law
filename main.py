@@ -15,8 +15,10 @@ df = df[(df != 0).all(1)]
 df = df.astype('str')
 df['bp_first_digit'] = df.base_price.str.extract('(\d)')
 df['bp_second_digit'] = df.base_price.str.extract('(\d\d)')
+df['bp_third_digit'] = df.base_price.str.extract('(\d\d\d)')
 df['av_first_digit'] = df.assessed_value.str.extract('(\d)')
 df['av_second_digit'] = df.assessed_value.str.extract('(\d\d)')
+df['av_third_digit'] = df.assessed_value.str.extract('(\d\d\d)')
 
 # drop nan columns
 df.dropna(axis=0, inplace=True)
@@ -24,22 +26,24 @@ df.dropna(axis=0, inplace=True)
 # replace column with 2nd digit
 df.bp_second_digit = df.bp_second_digit.astype('int') % 10
 df.av_second_digit = df.av_second_digit.astype('int') % 10
+df.bp_third_digit = df.bp_third_digit.astype('int') % 10
+df.av_third_digit = df.av_third_digit.astype('int') % 10
 
-print(df[:10])
+print(df.head())
 
 # %% Plot Columns
 # convert columns to int
-df_digits = df[['bp_first_digit', 'bp_second_digit', 'av_first_digit', 'av_second_digit']].astype('int') \
-    .reset_index(drop=True)
+df_digits = df[['bp_first_digit', 'bp_second_digit', 'bp_third_digit', 'av_first_digit',
+                'av_second_digit', 'av_third_digit']].astype('int').reset_index(drop=True)
 
 # get length of dataframe
 length, width = df_digits.shape
 
-columns1 = np.array(df_digits.columns[:2])
-columns2 = np.array(df_digits.columns[2:])
+columns1 = np.array(df_digits.columns[:3])
+columns2 = np.array(df_digits.columns[3:])
 arr = [columns1, columns2]
 
-fig, axs = plt.subplots(2, 2, figsize=(15, 15))
+fig, axs = plt.subplots(2, 3, figsize=(15, 15))
 
 
 def plotting(col, i, j):
@@ -54,14 +58,17 @@ def plotting(col, i, j):
 
 
 for i in range(len(arr)):
-    for j in range(len(arr)):
+    for j in range(len(arr[i])):
         print(f'{i}, {j}')
         plotting(arr[i][j], i, j)
 
 plt.savefig('Initial Benford.png', bbox_inches="tight")
 
 # %%
-
+columns1 = np.array(df_digits.columns[:3])
+columns2 = np.array(df_digits.columns[3:])
+arr = [columns1, columns2]
+print(len(arr))
 
 # print(df.isna().sum())
 # print(df.dtypes)
