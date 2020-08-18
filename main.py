@@ -12,8 +12,8 @@ print(df.head())
 
 # %% processing
 def pre_processing(data_df):
-    # drop columns with zeros
-    data_df = data_df[(data_df != 0).all(1)]
+    print(data_df.dtypes)
+    print((data_df['base_price'] == 0).any())
     data_df = data_df.astype('str')
     data_df['bp_first_digit'] = data_df.base_price.str.extract('(\d)')
     data_df['bp_second_digit'] = data_df.base_price.str.extract('(\d\d)')
@@ -49,12 +49,14 @@ def plotting(df, col, i, j, axs):
     # set individual bar labels using above list
     for k in axs[i, j].patches:
         # get_width pulls left or right; get_y pushes up or down
-        axs[i, j].text(k.get_x(), k.get_height() + 0.5, round(k.get_height(), 2), color='green')
+        axs[i, j].text(k.get_x(), k.get_height() + 0.5, round(k.get_height(), 5), color='green', rotation=90)
 
 
 def preplot(df_digits, name):
     # convert columns to int
     df_digits = pre_processing(df_digits)
+
+    # print((df_digits['bp_first_digit'] == 0).any())
 
     fig, axs = plt.subplots(2, 3, figsize=(15, 15))
 
@@ -68,16 +70,19 @@ def preplot(df_digits, name):
             print(f'{i}, {j}')
             plotting(df_digits, arr[i][j], i, j, axs)
 
+    fig1 = plt.gcf()
     plt.show()
-    plt.savefig(name, bbox_inches="tight")
+    fig1.savefig(name, bbox_inches="tight", dpi=100)
 
 
 # %%
-preplot(df, 'Initial Benford.png')
+# drop columns with zeros
+# df =
+preplot(df[(df != 0).all(1)], 'Initial Benford.png')
 
 # %% Refined implementation
 print(f"Original Dataframe row count: {len(df.index)}")
-base_price = df[(df[['base_price']] != 0).all(1)]
+base_price = df[(df.astype('int64')[['base_price']] != 0).all(1)]
 print(base_price.head())
 print(f"Row count of Dataframe without base price 'zero' values: {len(base_price.index)}")
 print(f"Dropped 'zero' rows in Dataframe: {len(df.index) - len(base_price.index)}")
@@ -89,14 +94,6 @@ print(f"Dropped 'zero' rows in Dataframe: {len(df.index) - len(assessed_value.in
 # %% PLot new dataframe
 # df without zeros in base_price column
 preplot(base_price, "No Base Price 'Zero' Values.png")
+# df without zeros in base_price column
+preplot(assessed_value, "No Assessed Value 'Zero' Values.png")
 
-# %%
-# print(base_price.head())
-
-# print(df.isna().sum())
-# print(df.dtypes)
-# print(df.bp_first_digit.isna().sum())
-# print(df.bp_second_digit.isna().sum())
-
-# df1 = df[df.isna().any(axis=1)]
-# print(df1)
